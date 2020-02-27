@@ -4,16 +4,17 @@ const ctx = canv.getContext('2d');
 const canv2 = document.getElementById('canvas2');
 const ctx2 = canv2.getContext('2d');
 
-const kf = 0.5;
+canv.style.display = 'block';
+canv2.style.display = 'none';
 
-const windowHeight = window.innerHeight;
-const windowWidth = window.innerWidth;
+canv.style.position = 'absolute';
+canv2.style.position = 'absolute';
 
 canv.width = windowWidth * kf;
-canv.height = windowHeight;
+canv.height = canv.width;
 
 canv2.width = windowWidth * kf;
-canv2.height = windowHeight;
+canv2.height = canv2.width;
 
 ctx.width = canv.width;
 ctx.height = canv.height;
@@ -21,20 +22,21 @@ ctx.height = canv.height;
 ctx2.width = canv2.width;
 ctx2.height = canv2.height;
 
+
 const radius = 20;
 const selfRadius = radius / 2;
 
 const arrowRadius = 5;
 let verts = {};
 
-const xCenter = windowWidth * kf / 2;
-const yCenter = windowHeight / 2;
+const xCenter = bordWidth / 2;
+const yCenter = bordHeight / 2;
 
 {
   const n = 11;
-  const x = windowWidth * kf / 2;
-  const y = windowHeight / 2;
-  const r = windowHeight / 3;
+  const x = xCenter;
+  const y = yCenter;
+  const r = bordWidth * kf;
   
   const alpha = 2 * Math.PI / n;
 
