@@ -96,10 +96,10 @@ console.log(selfConnected)
 const defaultColor = '#939393';
 
 ctx.fillStyle = defaultColor;
-ctx.fillRect(0, 0, ctx.width, ctx.height);
+//ctx.fillRect(0, 0, ctx.width, ctx.height);
 
 ctx2.fillStyle = '#515151';
-ctx2.fillRect(0, 0, ctx2.width, ctx2.height);
+//ctx2.fillRect(0, 0, ctx2.width, ctx2.height);
 
 function additionalDots(from, to) {
   const alpha = Math.atan2(to.y - from.y, to.x - from.x);
@@ -165,20 +165,6 @@ for(const key in verts) { //drawBothArrows
     ctx.closePath();
   }
 }
-for(const key of selfConnected) { //drawSelfConnected
-  const alpha = Math.atan2(verts[key].y - yCenter, verts[key].x - xCenter);
-  const R = Math.sqrt((xCenter - verts[key].x)**2 + (yCenter - verts[key].y)**2);
-
-  const x = xCenter + (R + radius + selfRadius) * Math.cos(alpha);
-  const y = yCenter + (R + radius + selfRadius) * Math.sin(alpha);
-
-  const arrowX = xCenter + (R + radius + arrowRadius) * Math.cos(alpha);
-  const arrowY = yCenter + (R + radius + arrowRadius) * Math.sin(alpha);
-
-  ctx.beginPath();
-  drawCircle(ctx, x, y, selfRadius, undefined, 'black');
-  drawArrowhead(ctx, {x : x, y : y}, {x : arrowX, y : arrowY}, arrowRadius, 'white', 'black')
-}
 
 ///// Not Directed
 for(const key in verts) { //drawSoloArrows
@@ -203,33 +189,39 @@ for(const key of selfConnected) { //drawSelfConnected
   const alpha = Math.atan2(verts[key].y - yCenter, verts[key].x - xCenter);
   const R = Math.sqrt((xCenter - verts[key].x)**2 + (yCenter - verts[key].y)**2);
 
-  const x = xCenter + (R + radius + selfRadius) * Math.cos(alpha);
-  const y = yCenter + (R + radius + selfRadius) * Math.sin(alpha);
+  const x = xCenter + (R + radius * 1.3) * Math.cos(alpha);
+  const y = yCenter + (R + radius * 1.3) * Math.sin(alpha);
 
+  ctx.beginPath();
+  drawCircle(ctx, x, y, selfRadius, undefined, 'black');
   ctx2.beginPath();
   drawCircle(ctx2, x, y, selfRadius, undefined, 'black');
 }
 
 for(const key in verts) { //draw vertics
   ctx.beginPath()
-  drawCircle(ctx, verts[key].x, verts[key].y, radius, "#fff", 'black')
+  drawCircle(ctx, verts[key].x, verts[key].y, radius, 'grey', 'black')
 
   ctx2.beginPath()
-  drawCircle(ctx2, verts[key].x, verts[key].y, radius, "#fff", 'black')
+  drawCircle(ctx2, verts[key].x, verts[key].y, radius, 'grey', 'black')
 }
 
 for(let i = 1; i <= N; i++) { //draw text
-  ctx.font = '30px Arial';
-  ctx.fillStyle = defaultColor;
+  ctx.font = '20px Arial';
+  ctx.fillStyle = 'white';
+  ctx.strokeStyle = 'black';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
   ctx.strokeText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
+  ctx.fillText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
 
-  ctx2.font = '30px Arial';
-  ctx2.fillStyle = defaultColor;
+  ctx2.font = '20px Arial';
+  ctx2.fillStyle = 'white';
+  ctx2.strokeStyle = 'black';
   ctx2.textBaseline = 'middle';
   ctx2.textAlign = 'center';
   ctx2.strokeText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
+  ctx2.fillText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
 }
 
 function drawCircle(context, x, y, r, fillStyle, strokeStyle) { 

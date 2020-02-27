@@ -7,7 +7,7 @@ const bordHeight = bordWidth;
 bord.style.position = "fixed";
 bord.style.width = bordWidth;
 bord.style.height = bordHeight;
-bord.style.border = "2px solid white";
+bord.style.border = "2px solid black";
 
 rightDiv.style.position = "fixed";
 rightDiv.style.width = bordWidth;
