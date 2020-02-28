@@ -2,10 +2,34 @@ body {
   background-image: url("bodyBg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+  
 }
 
 #border {
   background-image: url("bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+#rightUp {
+  background-image: url("term.png");
+  background-size: 100%;
+}
+
+#term {
+  font-family: monospace;
+  color: white;
+  font-size: 12;
+}
+
+#yellow {
+  color: yellow;
+}
+
+#red {
+  color: red;
+}
+
+#green {
+  color: green;
 }

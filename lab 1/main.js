@@ -89,7 +89,6 @@ for(let i = 0; i < matrix.length; i++) { //find connection
 }
 
 console.log(verts);
-console.log(selfConnected)
 
 const defaultColor = '#939393';
 
@@ -187,6 +186,7 @@ for(const key in verts) { //drawSoloArrows
     ctx2.stroke();
   }
 }
+
 for(const key in verts) { //drawBothArrows
   for(let i = 0; i < verts[key].bothDirected.length; i++) {
     let from = verts[key];
@@ -197,6 +197,7 @@ for(const key in verts) { //drawBothArrows
     ctx2.stroke();
   }
 }
+
 for(const key of selfConnected) { //drawSelfConnected
   const alpha = Math.atan2(verts[key].y - yCenter, verts[key].x - xCenter);
   const R = Math.sqrt((xCenter - verts[key].x)**2 + (yCenter - verts[key].y)**2);

@@ -4,6 +4,13 @@ const ctx = canv.getContext('2d');
 const canv2 = document.getElementById('canvas2');
 const ctx2 = canv2.getContext('2d');
 
+const term = document.getElementById('term');
+
+let startText = 'Graph-plotter:~ circle$ ';
+term.innerHTML = startText;
+
+term.innerHTML +=  'directed --info <br>';
+
 canv.style.display = 'block';
 canv2.style.display = 'none';
 
@@ -27,6 +34,7 @@ const radius = 20;
 const selfRadius = radius / 2;
 
 const arrowRadius = 5;
+
 let verts = {};
 
 const xCenter = bordWidth / 2;
@@ -56,6 +64,7 @@ const yCenter = bordHeight / 2;
 
 for(const key in verts) {  //adding props
   verts[key].cons = [],
+  verts[key].in = [],
   verts[key].soloDirected = [],
   verts[key].bothDirected = []
 }
@@ -67,13 +76,13 @@ const matrix = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
   [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-  [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
-  [0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1],
+  [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
   [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
   [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
-  [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
   [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0],
-  [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ]
 
 const selfConnected = [];
@@ -81,7 +90,8 @@ const selfConnected = [];
 for(let i = 0; i < matrix.length; i++) { //find connection
   for(let j = 0; j < matrix[i].length; j++) {
     if(matrix[i][j]) {
-      const names = [`vert${i+1}`, `vert${j+1}`]
+      const names = [`vert${i+1}`, `vert${j+1}`];
+      verts[names[1]].in.push(i+1);
       if(!matrix[j][i]) verts[names[0]].soloDirected.push(`vert${j+1}`);
       else if(i !== j) verts[names[0]].bothDirected.push(`vert${j+1}`);
       else selfConnected.push(`vert${i+1}`)
@@ -90,8 +100,59 @@ for(let i = 0; i < matrix.length; i++) { //find connection
   }
 }
 
+const power = verts.vert1.soloDirected.length + verts.vert1.in.length;
+let isHomogeneous = true;
+
+for(const key in verts) { 
+  verts[key].power = verts[key].soloDirected.length + verts[key].in.length;
+  verts[key].isHanging = (verts[key].power === 1) ? true : false;
+  verts[key].isIsolated = (verts[key].power === 0) ? true : false;
+  if(verts[key].power !== power) isHomogeneous = false;
+}
+
+for(const key in verts) { 
+  term.innerHTML += `<span id = 'yellow'>${key}</span>: `;
+  term.innerHTML += `Power(in) ${verts[key].in.length}; `;
+  term.innerHTML += `Power(out) ${verts[key].cons.length}; `;
+  term.innerHTML += '<br>';
+}
+
+term.innerHTML += startText;
+term.innerHTML += 'undirected --info <br>'
+
+for(const key in verts) { 
+  term.innerHTML += `<span id = 'yellow'>${key}</span>: `;
+  term.innerHTML += `Power ${verts[key].power}; `;
+  term.innerHTML += '<br>';
+}
+
+term.innerHTML += `<span id = "green">Hanging: </span>`;
+
+let count = 1;
+
+for(const key in verts) { 
+  if(verts[key].isHanging) term.innerHTML += `${count}  `
+  count++;
+}
+count = 1;
+term.innerHTML += '<br>';
+
+term.innerHTML += `<span id = "green">Isolated: </span>`;
+for(const key in verts) { 
+  if(verts[key].isIsolated) term.innerHTML += `${count}  `
+  count++;
+}
+count = 1;
+term.innerHTML += '<br>';
+
+if(isHomogeneous) {
+  term.innerHTML += `<span id = "yellow">Is homogeneous</span> (${power})<br>`;
+}
+else {
+  term.innerHTML += `<span id = "red">Is not homogeneous</span><br>`;
+}
+
 console.log(verts);
-console.log(selfConnected)
 
 const defaultColor = '#939393';
 
