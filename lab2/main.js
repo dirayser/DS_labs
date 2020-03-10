@@ -114,8 +114,8 @@ for(const key in verts) {
 
 for(const key in verts) { 
   term.innerHTML += `<span id = 'yellow'>${key}</span>: `;
-  term.innerHTML += `Power(in) ${verts[key].in.length}; `;
-  term.innerHTML += `Power(out) ${verts[key].cons.length}; `;
+  term.innerHTML += `Degree(in) ${verts[key].in.length}; `;
+  term.innerHTML += `Degree(out) ${verts[key].cons.length}; `;
   term.innerHTML += '<br>';
 }
 
@@ -124,7 +124,7 @@ term.innerHTML += 'undirected --info <br>'
 
 for(const key in verts) { 
   term.innerHTML += `<span id = 'yellow'>${key}</span>: `;
-  term.innerHTML += `Power ${verts[key].power}; `;
+  term.innerHTML += `Degree ${verts[key].power}; `;
   term.innerHTML += '<br>';
 }
 
