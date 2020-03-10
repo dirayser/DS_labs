@@ -104,7 +104,7 @@ const power = verts.vert1.soloDirected.length + verts.vert1.in.length;
 let isHomogeneous = true;
 
 for(const key in verts) { 
-  verts[key].power = verts[key].soloDirected.length + verts[key].in.length;
+  verts[key].power = verts[key].cons.length + verts[key].in.length;
   verts[key].isHanging = (verts[key].power === 1) ? true : false;
   verts[key].isIsolated = (verts[key].power === 0 ||
   (verts[key].power === 2 && selfConnected.includes(key)
