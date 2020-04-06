@@ -261,7 +261,7 @@ for(let i = 0; i < N; i++) {
 const A2 = MatrixPow(2, matrixCopy);
 const A3 = MatrixPow(3, matrixCopy);
 
-const mfw = Array.from(matrix);
+const mfw = JSON.parse(JSON.stringify(matrix));
 for(let i = 0; i < mfw.length; i++) {
   mfw[i][i] = 0;
 }
