@@ -41,7 +41,7 @@ rightUp.style.marginTop = (windowHeight - bordHeight) / 2;
 const but = document.getElementById('but');
 
 function onClick() {
-  if(anv3.style.display === 'none'){
+  if(canv3.style.display === 'none'){
     if(canv.style.display === 'block') {
       canv.style.display = 'none';
       canv2.style.display = 'block';
