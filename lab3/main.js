@@ -132,40 +132,6 @@ for(const key in verts) {
   term.innerHTML += '<br>';
 }
 
-term.innerHTML += startText;
-term.innerHTML += 'undirected --info <br>'
-
-for(const key in verts) { 
-  term.innerHTML += `<span id = 'yellow'>${key}</span>: `;
-  term.innerHTML += `Degree ${verts[key].power}; `;
-  term.innerHTML += '<br>';
-}
-
-term.innerHTML += `<span id = "green">Hanging: </span>`;
-
-let count = 1;
-
-for(const key in verts) { 
-  if(verts[key].isHanging) term.innerHTML += `${count}  `
-  count++;
-}
-count = 1;
-term.innerHTML += '<br>';
-
-term.innerHTML += `<span id = "green">Isolated: </span>`;
-for(const key in verts) { 
-  if(verts[key].isIsolated) term.innerHTML += `${count}  `
-  count++;
-}
-count = 1;
-term.innerHTML += '<br>';
-
-if(isHomogeneous) {
-  term.innerHTML += `<span id = "yellow">Is homogeneous</span> (${power})<br>`;
-}
-else {
-  term.innerHTML += `<span id = "red">Is not homogeneous</span><br>`;
-}
 
 const defaultColor = '#939393';
 
@@ -260,7 +226,6 @@ for(const key in verts) { //drawSoloArrows
 for(const key in verts) { //drawBothArrows
   for(let i = 0; i < verts[key].bothDirected.length; i++) {
     const {dx, dy} = additionalDots(verts[key], verts[verts[key].bothDirected[i]]);
-    console.log(dx, dy)
     const from = {
       x : verts[key].x,
       y : verts[key].y
@@ -371,7 +336,6 @@ for(let i = 0; i < newLength; i++) {
     newMatrix[i][j] = 0;
   }
 }
-console.log(matrixCopy)
 let kol = 0;
 let newVerts = {};
 for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
@@ -384,7 +348,7 @@ for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
     } 
   }
 }
-console.log(kol)
+
 {
   const n = V.length;
   const x = xCenter;
@@ -403,6 +367,7 @@ console.log(kol)
     vertics[`vert${i}`].x = newX;
     vertics[`vert${i}`].y = newY;
     vertics[`vert${i}`].name = `${V[i - 1]}`;
+    vertics[`vert${i}`].radius = radius * V[i - 1].length * 0.5;
     i++;
   }
   newVerts = vertics;
@@ -419,7 +384,6 @@ const newSelfConnected = [];
 for(let i = 0; i < newMatrix.length; i++) { //find connection
   for(let j = 0; j < newMatrix[i].length; j++) {
     if(newMatrix[i][j]) {
-      console.log([i, j])
       const names = [`vert${i+1}`, `vert${j+1}`];
       newVerts[names[1]].in.push(i+1);
       if(!newMatrix[j][i]) newVerts[names[0]].soloDirected.push(`vert${j+1}`);
@@ -431,12 +395,44 @@ for(let i = 0; i < newMatrix.length; i++) { //find connection
     }
   }
 }
+console.log('Матриця досяжностi: ', matrDos)
+console.log('Матриця сил. зв`язностi: ', S)
+
+term.innerHTML += startText;
+term.innerHTML += 'ways -n 2<br>';
+for(let i = 0; i < ways2.length;) { 
+  let text1 = ways2[i];
+  const text2 = ways2[i + 1] || '';
+  const marg = 12 - text1.length;
+  for(let i = 0; i < marg; i++) {
+    text1 += '&nbsp';
+  }
+  term.innerHTML += `${text1}${text2}<br>`;
+  i+=2;
+}
+
+term.innerHTML += startText;
+term.innerHTML += 'ways -n 3<br>';
+for(let i = 0; i < ways3.length;) { 
+  let text1 = ways3[i];
+  const text2 = ways3[i + 1] || '';
+  const marg = 12 - text1.length;
+  for(let i = 0; i < marg; i++) {
+    text1 += '&nbsp';
+  }
+  term.innerHTML += `${text1}${text2}<br>`;
+  i+=2;
+}
+
+term.innerHTML += startText;
+term.innerHTML += 'stronglyConnectedComponents<br>';
+for(let i = 0; i < V.length; i++) {
+  term.innerHTML += `<span id = 'yellow'>Component ${i + 1}: </span>: `; 
+  term.innerHTML += `{${V[i]}}<br>`;
+}
 console.log(V)
-console.log(newMatrix)
-console.log(conRegen)
-console.log(newVerts)
-console.log(newSelfConnected)
 ctx3.fillStyle = 'white';
+let vertNum = 0; 
 for(const key in newVerts) { //drawSoloArrows
   for(let i = 0; i < newVerts[key].soloDirected.length; i++) {
     ctx3.beginPath();
@@ -444,15 +440,16 @@ for(const key in newVerts) { //drawSoloArrows
     ctx3.lineTo(newVerts[newVerts[key].soloDirected[i]].x, newVerts[newVerts[key].soloDirected[i]].y);
     ctx3.stroke();
     ctx3.beginPath();
-    const endCoords = getEndCoords(newVerts[key], newVerts[newVerts[key].soloDirected[i]], radius * V[i + 1].length * 0.5);
+    const endCoords = getEndCoords(newVerts[key], newVerts[newVerts[key].soloDirected[i]], newVerts[newVerts[key].soloDirected[i]].radius);
     drawArrowhead(ctx3, newVerts[key], endCoords, arrowRadius, 'white', 'black');
     ctx3.closePath();
+    vertNum++;
   }
 }
+vertNum = 0; 
 for(const key in newVerts) { //drawBothArrows
   for(let i = 0; i < newVerts[key].bothDirected.length; i++) {
     const {dx, dy} = additionalDots(newVerts[key], newVerts[newVerts[key].bothDirected[i]]);
-    console.log(dx, dy)
     const from = {
       x : newVerts[key].x,
       y : newVerts[key].y
@@ -472,12 +469,12 @@ for(const key in newVerts) { //drawBothArrows
     ctx3.lineTo(to.x, to.y);
     ctx3.stroke();
     ctx3.beginPath();
-    const endCoords = getEndCoords(from, to, radius * V[i + 1].length * 0.5);
+    const endCoords = getEndCoords(from, to, newVerts[newVerts[key].bothDirected[i]].radius);
     drawArrowhead(ct3x, from, endCoords, arrowRadius, 'white', 'black');
     ctx3.closePath();
   }
 }
-let vertNum = 0; 
+vertNum = 0; 
 for(const key of newSelfConnected) { //drawSelfConnected
   const alpha = Math.atan2(newVerts[key].y - yCenter, newVerts[key].x - xCenter);
   const R = Math.sqrt((xCenter - newVerts[key].x)**2 + (yCenter - newVerts[key].y)**2);
