@@ -100,12 +100,12 @@ const matrixCopy = JSON.parse(JSON.stringify(matrix));
 
 const selfConnected = [];
 
-for(let i = 0; i < matrix.length; i++) { //find connection
-  for(let j = 0; j < matrix[i].length; j++) {
-    if(matrix[i][j]) {
+for(let i = 0; i < matrixCopy.length; i++) { //find connection
+  for(let j = 0; j < matrixCopy[i].length; j++) {
+    if(matrixCopy[i][j]) {
       const names = [`vert${i+1}`, `vert${j+1}`];
       verts[names[1]].in.push(i+1);
-      if(matrix[j][i] === 0) verts[names[0]].soloDirected.push(`vert${j+1}`);
+      if(matrixCopy[j][i] === 0) verts[names[0]].soloDirected.push(`vert${j+1}`);
       else if(i !== j) verts[names[0]].bothDirected.push(`vert${j+1}`);
       else selfConnected.push(`vert${i+1}`)
       verts[names[0]].cons.push(j + 1)
@@ -165,31 +165,30 @@ function getEndCoords(from, to, r) {
 
 function MultiplyElemets(m1,m2) {
   let C = Array.from(m1);
-  for (let j = 0; j < m1.length; j++) {
-   for (let i=0; i < m2.length; i++) {
+  for (let i = 0; i < m1.length; i++) {
+   for (let j=0; j < m2.length; j++) {
     C[i][j] = m1[i][j] * m2[i][j];
      }
    }
    return C
 }
-function MultiplyMatrix(A,B) {
-    let rowsA = A.length, colsA = A[0].length,
-        rowsB = B.length, colsB = B[0].length,
-        C = [];
-    if (colsA != rowsB) return false;
-    for (let i = 0; i < rowsA; i++) C[ i ] = [];
-    for (let k = 0; k < colsB; k++)
-     { for (let i = 0; i < rowsA; i++)
-        { let t = 0;
-          for (let j = 0; j < rowsB; j++) t += A[ i ][j]*B[j][k];
-          C[ i ][k] = t;
-        }
-     }
-    return C;
+function MultiplyMatrix(m1, m2) {
+  let result = [];
+  for (let i = 0; i < m1.length; i++) {
+      result[i] = [];
+      for (let j = 0; j < m2[0].length; j++) {
+        let sum = 0;
+          for (let k = 0; k < m1[0].length; k++) {
+              sum += m1[i][k] * m2[k][j];
+          }
+          result[i][j] = sum;
+      }
+  }
+  return result;
 }
 function MatrixPow(n,A) { 
     if (n == 1) return A;     // Функцию MultiplyMatrix см. выше
-    else return MultiplyMatrix( A, MatrixPow(n-1,A) );
+    else return MultiplyMatrix(A, MatrixPow(n-1 ,A) );
 }
 function TransMatrix(A)       //На входе двумерный массив
 {
@@ -251,13 +250,14 @@ for(const key in verts) { //drawBothArrows
   }
 }
 
-let I = [];
+let matrDos = [];
 for(let i = 0; i < N; i++) {
-  I[i] = [];
+  matrDos[i] = [];
   for(let j = 0; j < N; j++) {
-    I[i][j] = (i===j) ? 1 : 0;
+    matrDos[i][j] = (i===j) ? 1 : 0;
   }
 }
+
 const A2 = MatrixPow(2, matrixCopy);
 const A3 = MatrixPow(3, matrixCopy);
 
@@ -289,19 +289,22 @@ for(let i = 0; i < mfw.length; i++) { //finding ways
   }
 }
 
-const arrForSum = [I];
+const arrForSum = [];
 for(let i = 1; i < N; i++) {
   arrForSum.push(MatrixPow(i, matrixCopy))
 }
-const matReducer = (acc, curr) => SumMatrix(acc, curr);
-const matrDos = arrForSum.reduce(matReducer);
-for(let i = 0; i < matrDos.length; i++) { //making dos. matrix
-  for(let j = 0; j < matrDos.length; j++) {
-    if(matrDos[i][j]) matrDos[i][j] /= matrDos[i][j];
+
+for(let i = 0; i < arrForSum.length; i++) {
+ for(let j = 0; j < matrDos.length; j++) {
+  for(let k = 0; k < matrDos.length; k++) {
+   if(arrForSum[i][j][k]) {
+    matrDos[j][k] = 1;
+   }
   }
+ }
 }
 
-const S = MultiplyElemets(matrDos, TransMatrix(matrDos)); //матриця сильной связности 
+const S = MultiplyElemets(JSON.parse(JSON.stringify(matrDos)), TransMatrix(JSON.parse(JSON.stringify(matrDos)))); //матриця сильной связности 
 
 const V = [];
 const used = new Set();
@@ -322,7 +325,7 @@ for(let i = 0; i < S.length; i++) { //компоненты сильной свя
 let conRegen = {};
 
 V.forEach((val, ind) => {
-  val.forEach((inVal, inInd) => {
+  val.forEach((inVal) => {
     conRegen[inVal] = ind + 1; 
   })
 })
