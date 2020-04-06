@@ -430,7 +430,7 @@ for(let i = 0; i < V.length; i++) {
   term.innerHTML += `<span id = 'yellow'>Component ${i + 1}: </span>: `; 
   term.innerHTML += `{${V[i]}}<br>`;
 }
-console.log(V)
+
 ctx3.fillStyle = 'white';
 let vertNum = 0; 
 for(const key in newVerts) { //drawSoloArrows
