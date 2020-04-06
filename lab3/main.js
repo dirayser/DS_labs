@@ -91,10 +91,12 @@ const matrix = [
   [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
   [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
   [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
-  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0],
   [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1],
 ]
+
+const matrixCopy = JSON.parse(JSON.stringify(matrix));
 
 const selfConnected = [];
 
@@ -103,7 +105,7 @@ for(let i = 0; i < matrix.length; i++) { //find connection
     if(matrix[i][j]) {
       const names = [`vert${i+1}`, `vert${j+1}`];
       verts[names[1]].in.push(i+1);
-      if(!matrix[j][i]) verts[names[0]].soloDirected.push(`vert${j+1}`);
+      if(matrix[j][i] === 0) verts[names[0]].soloDirected.push(`vert${j+1}`);
       else if(i !== j) verts[names[0]].bothDirected.push(`vert${j+1}`);
       else selfConnected.push(`vert${i+1}`)
       verts[names[0]].cons.push(j + 1)
@@ -180,7 +182,7 @@ function additionalDots(from, to) {
     dy : (radius / 2) * Math.sin(Math.PI / 2 - alpha)
     }
 }
-function getEndCoords(from, to) { 
+function getEndCoords(from, to, r) { 
   const step = 1;
   const betta = Math.atan2(to.y - from.y, to.x - from . x);
   let x = from.x;
@@ -190,7 +192,7 @@ function getEndCoords(from, to) {
   while(1) {
     x += dx;
     y += dy;
-    if(Math.sqrt((to.x - x)**2 + (to.y - y)**2) < (radius + arrowRadius)) break;
+    if(Math.sqrt((to.x - x)**2 + (to.y - y)**2) < (r + arrowRadius)) break;
   }
   return {x : x, y : y}
 }
@@ -250,7 +252,7 @@ for(const key in verts) { //drawSoloArrows
     ctx.lineTo(verts[verts[key].soloDirected[i]].x, verts[verts[key].soloDirected[i]].y);
     ctx.stroke();
     ctx.beginPath();
-    const endCoords = getEndCoords(verts[key], verts[verts[key].soloDirected[i]]);
+    const endCoords = getEndCoords(verts[key], verts[verts[key].soloDirected[i]], radius);
     drawArrowhead(ctx, verts[key], endCoords, arrowRadius, 'white', 'black');
     ctx.closePath();
   }
@@ -278,7 +280,7 @@ for(const key in verts) { //drawBothArrows
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
     ctx.beginPath();
-    const endCoords = getEndCoords(from, to);
+    const endCoords = getEndCoords(from, to, radius);
     drawArrowhead(ctx, from, endCoords, arrowRadius, 'white', 'black');
     ctx.closePath();
   }
@@ -291,8 +293,8 @@ for(let i = 0; i < N; i++) {
     I[i][j] = (i===j) ? 1 : 0;
   }
 }
-const A2 = MatrixPow(2, matrix);
-const A3 = MatrixPow(3, matrix);
+const A2 = MatrixPow(2, matrixCopy);
+const A3 = MatrixPow(3, matrixCopy);
 
 const mfw = Array.from(matrix);
 for(let i = 0; i < mfw.length; i++) {
@@ -324,7 +326,7 @@ for(let i = 0; i < mfw.length; i++) { //finding ways
 
 const arrForSum = [I];
 for(let i = 1; i < N; i++) {
-  arrForSum.push(MatrixPow(i, matrix))
+  arrForSum.push(MatrixPow(i, matrixCopy))
 }
 const matReducer = (acc, curr) => SumMatrix(acc, curr);
 const matrDos = arrForSum.reduce(matReducer);
@@ -351,7 +353,6 @@ for(let i = 0; i < S.length; i++) { //компоненты сильной свя
   if(temp.length) V.push(Array.from(temp));
   temp = [];
 }
-console.log(V)
 
 let conRegen = {};
 
@@ -361,25 +362,29 @@ V.forEach((val, ind) => {
   })
 })
 
-console.log(conRegen)
+const newLength = V.length;
 
-const newMatrix = new Array(V.length).fill(new Array(V.length).fill(0));
+let newMatrix = [];
+for(let i = 0; i < newLength; i++) {
+  newMatrix[i] = [];
+  for(var j=0; j<newLength; j++) {
+    newMatrix[i][j] = 0;
+  }
+}
+console.log(matrixCopy)
+let kol = 0;
 let newVerts = {};
-
-console.log(newMatrix)
-
-for(let i = 0; i < matrix.length; i++) { //find connection
-  for(let j = 0; j < matrix[i].length; j++) {
-    if(matrix[i][j] === 1) {
-      const a = conRegen[i + 1] - 1;
-      const b = conRegen[j + 1] - 1;
-      newMatrix[a][b] = 1;
+for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
+  for(let j = 0; j < matrixCopy.length; j++) {
+    if(matrixCopy[i][j] === 1) {
+      kol++;
+      const a = conRegen[i + 1];
+      const b = conRegen[j + 1];
+      newMatrix[a - 1][b - 1] = 1;
     } 
   }
 }
-
-console.log(newMatrix)
-
+console.log(kol)
 {
   const n = V.length;
   const x = xCenter;
@@ -394,9 +399,10 @@ console.log(newMatrix)
   for (let angle = 0; i <= n; angle += alpha) {
     const newX = x + r * Math.cos(angle);
     const newY = y + r * Math.sin(angle);
-    vertics[i] = {};
-    vertics[i].x = newX;
-    vertics[i].y = newY;
+    vertics[`vert${i}`] = {};
+    vertics[`vert${i}`].x = newX;
+    vertics[`vert${i}`].y = newY;
+    vertics[`vert${i}`].name = `${V[i - 1]}`;
     i++;
   }
   newVerts = vertics;
@@ -410,7 +416,94 @@ for(const key in newVerts) {  //adding props
 }
 
 const newSelfConnected = [];
+for(let i = 0; i < newMatrix.length; i++) { //find connection
+  for(let j = 0; j < newMatrix[i].length; j++) {
+    if(newMatrix[i][j]) {
+      console.log([i, j])
+      const names = [`vert${i+1}`, `vert${j+1}`];
+      newVerts[names[1]].in.push(i+1);
+      if(!newMatrix[j][i]) newVerts[names[0]].soloDirected.push(`vert${j+1}`);
+      else if(i !== j) newVerts[names[0]].bothDirected.push(`vert${j+1}`);
+      else {
+        newSelfConnected.push(`vert${i+1}`)
+      }
+      newVerts[names[0]].cons.push(j + 1)
+    }
+  }
+}
+console.log(V)
+console.log(newMatrix)
+console.log(conRegen)
+console.log(newVerts)
+console.log(newSelfConnected)
+ctx3.fillStyle = 'white';
+for(const key in newVerts) { //drawSoloArrows
+  for(let i = 0; i < newVerts[key].soloDirected.length; i++) {
+    ctx3.beginPath();
+    ctx3.moveTo(newVerts[key].x, newVerts[key].y);
+    ctx3.lineTo(newVerts[newVerts[key].soloDirected[i]].x, newVerts[newVerts[key].soloDirected[i]].y);
+    ctx3.stroke();
+    ctx3.beginPath();
+    const endCoords = getEndCoords(newVerts[key], newVerts[newVerts[key].soloDirected[i]], radius * V[i + 1].length * 0.5);
+    drawArrowhead(ctx3, newVerts[key], endCoords, arrowRadius, 'white', 'black');
+    ctx3.closePath();
+  }
+}
+for(const key in newVerts) { //drawBothArrows
+  for(let i = 0; i < newVerts[key].bothDirected.length; i++) {
+    const {dx, dy} = additionalDots(newVerts[key], newVerts[newVerts[key].bothDirected[i]]);
+    console.log(dx, dy)
+    const from = {
+      x : newVerts[key].x,
+      y : newVerts[key].y
+    }
+    const to = {
+      x : newVerts[newVerts[key].bothDirected[i]].x,
+      y : newVerts[newVerts[key].bothDirected[i]].y
+    }
 
+    from.x += dx;
+    from.y -= dy;
+    to.x += dx;
+    to.y -= dy;
+
+    ctx3.beginPath();
+    ctx3.moveTo(from.x, from.y);
+    ctx3.lineTo(to.x, to.y);
+    ctx3.stroke();
+    ctx3.beginPath();
+    const endCoords = getEndCoords(from, to, radius * V[i + 1].length * 0.5);
+    drawArrowhead(ct3x, from, endCoords, arrowRadius, 'white', 'black');
+    ctx3.closePath();
+  }
+}
+let vertNum = 0; 
+for(const key of newSelfConnected) { //drawSelfConnected
+  const alpha = Math.atan2(newVerts[key].y - yCenter, newVerts[key].x - xCenter);
+  const R = Math.sqrt((xCenter - newVerts[key].x)**2 + (yCenter - newVerts[key].y)**2);
+
+  const x = xCenter + (R + radius * 1.3) * Math.cos(alpha);
+  const y = yCenter + (R + radius * 0.5 * 1.3) * Math.sin(alpha);
+
+  ctx3.beginPath();
+  drawCircle(ctx3, x, y, selfRadius * V[vertNum] * 0.5, undefined, 'black');
+}
+
+for(const key in newVerts) { //draw vertics
+  ctx3.beginPath()
+  drawCircle(ctx3, newVerts[key].x, newVerts[key].y, radius * V[vertNum].length * 0.5, 'grey', 'black');
+  vertNum++;
+}
+for(let i = 1; i <= newLength; i++) { //draw text
+  ctx3.font = '20px Arial';
+  ctx3.fillStyle = 'white';
+  ctx3.strokeStyle = 'black';
+  ctx3.textBaseline = 'middle';
+  ctx3.textAlign = 'center';
+  ctx3.strokeText(newVerts[`vert${i}`].name, newVerts[`vert${i}`].x, newVerts[`vert${i}`].y);
+  ctx3.fillText(newVerts[`vert${i}`].name, newVerts[`vert${i}`].x, newVerts[`vert${i}`].y);
+}
+vertNum = 0;
 ///// Not Directed
 for(const key in verts) { //drawSoloArrows
   for(let i = 0; i < verts[key].soloDirected.length; i++) {

@@ -41,13 +41,15 @@ rightUp.style.marginTop = (windowHeight - bordHeight) / 2;
 const but = document.getElementById('but');
 
 function onClick() {
-  if(canv.style.display === 'block') {
-    canv.style.display = 'none';
-    canv2.style.display = 'block';
-  }
-  else {
-    canv.style.display = 'block';
-    canv2.style.display = 'none';
+  if(anv3.style.display === 'none'){
+    if(canv.style.display === 'block') {
+      canv.style.display = 'none';
+      canv2.style.display = 'block';
+   }
+    else {
+      canv.style.display = 'block';
+      canv2.style.display = 'none';
+    }
   }
 }
 
