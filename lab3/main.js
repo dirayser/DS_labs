@@ -377,24 +377,14 @@ for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
 }
 
 for(const key in newVerts) {  //adding props
-  newVerts[key].cons = [],
-  newVerts[key].in = [],
-  newVerts[key].soloDirected = [],
-  newVerts[key].bothDirected = []
+  newVerts[key].soloDirected = []
 }
 
-const newSelfConnected = [];
 for(let i = 0; i < newMatrix.length; i++) { //find connection
   for(let j = 0; j < newMatrix[i].length; j++) {
     if(newMatrix[i][j]) {
       const names = [`vert${i+1}`, `vert${j+1}`];
-      newVerts[names[1]].in.push(i+1);
       if(!newMatrix[j][i]) newVerts[names[0]].soloDirected.push(`vert${j+1}`);
-      else if(i !== j) newVerts[names[0]].bothDirected.push(`vert${j+1}`);
-      else {
-        newSelfConnected.push(`vert${i+1}`)
-      }
-      newVerts[names[0]].cons.push(j + 1)
     }
   }
 }
@@ -450,33 +440,6 @@ for(const key in newVerts) { //drawSoloArrows
   }
 }
 vertNum = 0; 
-for(const key in newVerts) { //drawBothArrows
-  for(let i = 0; i < newVerts[key].bothDirected.length; i++) {
-    const {dx, dy} = additionalDots(newVerts[key], newVerts[newVerts[key].bothDirected[i]]);
-    const from = {
-      x : newVerts[key].x,
-      y : newVerts[key].y
-    }
-    const to = {
-      x : newVerts[newVerts[key].bothDirected[i]].x,
-      y : newVerts[newVerts[key].bothDirected[i]].y
-    }
-
-    from.x += dx;
-    from.y -= dy;
-    to.x += dx;
-    to.y -= dy;
-
-    ctx3.beginPath();
-    ctx3.moveTo(from.x, from.y);
-    ctx3.lineTo(to.x, to.y);
-    ctx3.stroke();
-    ctx3.beginPath();
-    const endCoords = getEndCoords(from, to, newVerts[newVerts[key].bothDirected[i]].radius);
-    drawArrowhead(ct3x, from, endCoords, arrowRadius, 'white', 'black');
-    ctx3.closePath();
-  }
-}
 
 for(const key in newVerts) { //draw vertics
   ctx3.beginPath()
