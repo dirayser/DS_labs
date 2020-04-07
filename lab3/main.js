@@ -347,7 +347,7 @@ for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
       kol++;
       const a = conRegen[i + 1];
       const b = conRegen[j + 1];
-      newMatrix[a - 1][b - 1] = 1;
+      if(a !== b) newMatrix[a - 1][b - 1] = 1;
     } 
   }
 }
@@ -476,17 +476,6 @@ for(const key in newVerts) { //drawBothArrows
     drawArrowhead(ct3x, from, endCoords, arrowRadius, 'white', 'black');
     ctx3.closePath();
   }
-}
-vertNum = 0; 
-for(const key of newSelfConnected) { //drawSelfConnected
-  const alpha = Math.atan2(newVerts[key].y - yCenter, newVerts[key].x - xCenter);
-  const R = Math.sqrt((xCenter - newVerts[key].x)**2 + (yCenter - newVerts[key].y)**2);
-
-  const x = xCenter + (R + radius * 1.3) * Math.cos(alpha);
-  const y = yCenter + (R + radius * 0.5 * 1.3) * Math.sin(alpha);
-
-  ctx3.beginPath();
-  drawCircle(ctx3, x, y, selfRadius * V[vertNum] * 0.5, undefined, 'black');
 }
 
 for(const key in newVerts) { //draw vertics
