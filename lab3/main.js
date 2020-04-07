@@ -370,7 +370,7 @@ for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
     vertics[`vert${i}`].x = newX;
     vertics[`vert${i}`].y = newY;
     vertics[`vert${i}`].name = `${V[i - 1]}`;
-    vertics[`vert${i}`].radius = radius * V[i - 1].length * 0.5;
+    vertics[`vert${i}`].radius = radius * (V[i - 1].length)**0.5;
     i++;
   }
   newVerts = vertics;
@@ -480,11 +480,11 @@ for(const key in newVerts) { //drawBothArrows
 
 for(const key in newVerts) { //draw vertics
   ctx3.beginPath()
-  drawCircle(ctx3, newVerts[key].x, newVerts[key].y, radius * V[vertNum].length * 0.5, 'grey', 'black');
+  drawCircle(ctx3, newVerts[key].x, newVerts[key].y, newVerts[key].radius, 'grey', 'black');
   vertNum++;
 }
 for(let i = 1; i <= newLength; i++) { //draw text
-  ctx3.font = '20px Arial';
+  ctx3.font = '15px Arial';
   ctx3.fillStyle = 'white';
   ctx3.strokeStyle = 'black';
   ctx3.textBaseline = 'middle';
