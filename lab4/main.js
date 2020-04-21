@@ -136,21 +136,15 @@ for(const key in verts) {
 const starty = 1;
 const dfsArray = [starty];
 const dfsFull = [starty];
-const set_ = new Set();
-set_.add(starty);
 
 const dfs = (vertics, current, prev = 1) => {
-  if(set_.size === N) return;
-  vertics[`vert${current}`].cons.forEach(val => {
+  vertics[`vert${current}`].cons.forEach((val) => {
     if(!dfsArray.includes(val)){
       dfsArray.push(val);
       dfsFull.push(val);
-      set_.add(val)
       dfs(vertics, val, current);
     }
   });
-  //dfsArray.push(-1);
-  //dfsFull.push(`${current}-${prev}`)
   dfsFull.push(prev);
 }
 
@@ -158,12 +152,28 @@ dfs(verts, starty);
 
 const iter = dfsFull[Symbol.iterator]();
 let prev = 0;
+const visited = [];
+
 const halt = () => {
-  const currVal = iter.next().value;
+  let currVal = iter.next().value;
+  visited.forEach(x => {
+    ctx.beginPath();
+    drawCircle(ctx, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, '#0000FF', 'black');
+    { //text
+      ctx.font = '20px Arial';
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = 'black';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.strokeText(`${x}`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+      ctx.fillText(`${x}`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+    }
+  })
   const currVert = `vert${currVal}`; 
   const prevVert = `vert${prev}`;
   ctx.beginPath();
-  drawCircle(ctx, verts[currVert].x, verts[currVert].y, radius, 'orange', 'black');
+  drawCircle(ctx, verts[currVert].x, verts[currVert].y, radius, 'red', 'black');
+  { //text
   ctx.font = '20px Arial';
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
@@ -171,17 +181,22 @@ const halt = () => {
   ctx.textAlign = 'center';
   ctx.strokeText(`${currVal}`, verts[currVert].x, verts[currVert].y);
   ctx.fillText(`${currVal}`, verts[currVert].x, verts[currVert].y);
+  }
   if(prev) {
     ctx.beginPath()
     drawCircle(ctx, verts[prevVert].x, verts[prevVert].y, radius, 'green', 'black')
-    ctx.font = '20px Arial';
+
+    { //text
+      ctx.font = '20px Arial';
     ctx.fillStyle = 'white';
     ctx.strokeStyle = 'black';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
     ctx.strokeText(`${prev}`, verts[prevVert].x, verts[prevVert].y);
     ctx.fillText(`${prev}`, verts[prevVert].x, verts[prevVert].y);
+    }
   }
+  visited.push(currVal);
   prev = currVal;
 }
 
