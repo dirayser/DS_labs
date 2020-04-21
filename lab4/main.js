@@ -492,35 +492,39 @@ for(let i = 0; i < V.length; i++) {
 }
 
 ctx3.fillStyle = 'white';
-let vertNum = 0; 
-for(const key in newVerts) { //drawSoloArrows
-  for(let i = 0; i < newVerts[key].soloDirected.length; i++) {
+
+const treeObj = {};
+for(let i = 0; i < dfsFull.length - 1; i++) {
+  let curr = dfsFull[i];
+  let next = dfsFull[i+1];
+  if(treeObj[next] !== curr) {
+    treeObj[curr] = next;
     ctx3.beginPath();
-    ctx3.moveTo(newVerts[key].x, newVerts[key].y);
-    ctx3.lineTo(newVerts[newVerts[key].soloDirected[i]].x, newVerts[newVerts[key].soloDirected[i]].y);
+    ctx3.moveTo(verts[`vert${curr}`].x, verts[`vert${curr}`].y);
+    ctx3.lineTo(verts[`vert${next}`].x, verts[`vert${next}`].y);
     ctx3.stroke();
     ctx3.beginPath();
-    const endCoords = getEndCoords(newVerts[key], newVerts[newVerts[key].soloDirected[i]], newVerts[newVerts[key].soloDirected[i]].radius);
-    drawArrowhead(ctx3, newVerts[key], endCoords, arrowRadius, 'white', 'black');
+    const endCoords = getEndCoords(verts[`vert${curr}`], verts[`vert${next}`], radius);
+    drawArrowhead(ctx3, verts[`vert${curr}`], endCoords, arrowRadius, 'white', 'black');
     ctx3.closePath();
-    vertNum++;
-  }
+  } 
 }
-vertNum = 0; 
 
-for(const key in newVerts) { //draw vertics
+let vertNum = 0; 
+
+for(const key in verts) { //draw vertics
   ctx3.beginPath()
-  drawCircle(ctx3, newVerts[key].x, newVerts[key].y, newVerts[key].radius, 'grey', 'black');
+  drawCircle(ctx3, verts[key].x, verts[key].y, radius, 'grey', 'black');
   vertNum++;
 }
-for(let i = 1; i <= newLength; i++) { //draw text
+for(let i = 1; i <= N; i++) { //draw text
   ctx3.font = '15px Arial';
   ctx3.fillStyle = 'white';
   ctx3.strokeStyle = 'black';
   ctx3.textBaseline = 'middle';
   ctx3.textAlign = 'center';
-  ctx3.strokeText(newVerts[`vert${i}`].name, newVerts[`vert${i}`].x, newVerts[`vert${i}`].y);
-  ctx3.fillText(newVerts[`vert${i}`].name, newVerts[`vert${i}`].x, newVerts[`vert${i}`].y);
+  ctx3.strokeText(i, verts[`vert${i}`].x, verts[`vert${i}`].y);
+  ctx3.fillText(i, verts[`vert${i}`].x, verts[`vert${i}`].y);
 }
 vertNum = 0;
 ///// Not Directed
