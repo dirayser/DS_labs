@@ -133,7 +133,7 @@ for(const key in verts) {
   term.innerHTML += `Degree(out) ${verts[key].cons.length}; `;
   term.innerHTML += '<br>';
 }
-const starty = 1;
+const starty = 9;
 const dfsArray = [starty];
 const dfsFull = [starty];
 
@@ -149,6 +149,16 @@ const dfs = (vertics, current, prev = 1) => {
 }
 
 dfs(verts, starty);
+
+let numMatrix = [];
+for(let i = 0; i < N; i++) {
+  numMatrix[i] = [];
+  for(let j = 0; j < N; j++) {
+    numMatrix[i][j] = 0;
+  }
+  numMatrix[i][dfsArray[i] - 1] = 1;
+}
+
 
 const iter = dfsFull[Symbol.iterator]();
 let prev = 0;
@@ -317,181 +327,13 @@ for(const key in verts) { //drawBothArrows
   }
 }
 
-let matrDos = [];
+let treeMatrix = [];
 for(let i = 0; i < N; i++) {
-  matrDos[i] = [];
+  treeMatrix[i] = [];
   for(let j = 0; j < N; j++) {
-    matrDos[i][j] = (i===j) ? 1 : 0;
+    treeMatrix[i][j] = 0;
   }
 }
-
-const A2 = MatrixPow(2, matrixCopy);
-const A3 = MatrixPow(3, matrixCopy);
-
-const mfw = JSON.parse(JSON.stringify(matrix));
-for(let i = 0; i < mfw.length; i++) {
-  mfw[i][i] = 0;
-}
-
-const ways2 = [];
-const ways3 = [];
-
-for(let i = 0; i < mfw.length; i++) { //finding ways
-  for(let j = 0; j < mfw.length; j++) {
-    if(mfw[i][j]){
-      for(let k = 0; k < mfw[j].length; k++) {
-        if(mfw[j][k]) {
-          let currWay = `${i+1}-${j+1}-${k+1}`;
-          ways2.push(currWay);
-          for(let o = 0; o < mfw[k].length; o++) {
-            if(mfw[k][o]) {
-              currWay = `${i+1}-${j+1}-${k+1}-`;
-              currWay += o+1;
-              ways3.push(currWay)
-            }
-          }
-        }
-      } 
-    }
-  }
-}
-
-const arrForSum = [];
-for(let i = 1; i < N; i++) {
-  arrForSum.push(MatrixPow(i, matrixCopy))
-}
-
-for(let i = 0; i < arrForSum.length; i++) {
- for(let j = 0; j < matrDos.length; j++) {
-  for(let k = 0; k < matrDos.length; k++) {
-   if(arrForSum[i][j][k]) {
-    matrDos[j][k] = 1;
-   }
-  }
- }
-}
-
-const S = MultiplyElemets(JSON.parse(JSON.stringify(matrDos)), TransMatrix(JSON.parse(JSON.stringify(matrDos)))); //матриця сильной связности 
-
-const V = [];
-const used = new Set();
-
-for(let i = 0; i < S.length; i++) { //компоненты сильной связности
-  let temp = [];
-  if(used.has(i + 1)) continue;
-  for(let j = i; j < S.length; j++) {
-    if(S[j][i]) {
-      used.add(j + 1);
-      temp.push(j + 1)
-    }
-  }
-  if(temp.length) V.push(Array.from(temp));
-  temp = [];
-}
-
-let conRegen = {};
-
-V.forEach((val, ind) => {
-  val.forEach((inVal) => {
-    conRegen[inVal] = ind + 1; 
-  })
-})
-
-const newLength = V.length;
-
-let newMatrix = [];
-for(let i = 0; i < newLength; i++) {
-  newMatrix[i] = [];
-  for(var j=0; j<newLength; j++) {
-    newMatrix[i][j] = 0;
-  }
-}
-let kol = 0;
-let newVerts = {};
-for(let i = 0; i < matrixCopy.length; i++) { //recreate matrix for condensation
-  for(let j = 0; j < matrixCopy.length; j++) {
-    if(matrixCopy[i][j] === 1) {
-      kol++;
-      const a = conRegen[i + 1];
-      const b = conRegen[j + 1];
-      if(a !== b) newMatrix[a - 1][b - 1] = 1;
-    } 
-  }
-}
-
-{ //for condensation
-  const n = V.length;
-  const x = xCenter;
-  const y = yCenter;
-  const r = bordWidth * kf;
-  
-  const alpha = 2 * Math.PI / n;
-
-  const vertics = {};
-  let i = 1;
-
-  for (let angle = 0; i <= n; angle += alpha) {
-    const newX = x + r * Math.cos(angle);
-    const newY = y + r * Math.sin(angle);
-    vertics[`vert${i}`] = {};
-    vertics[`vert${i}`].x = newX;
-    vertics[`vert${i}`].y = newY;
-    vertics[`vert${i}`].name = `${V[i - 1]}`;
-    vertics[`vert${i}`].radius = radius * (V[i - 1].length)**0.5;
-    i++;
-  }
-  newVerts = vertics;
-}
-
-for(const key in newVerts) {  //adding props
-  newVerts[key].soloDirected = []
-}
-
-for(let i = 0; i < newMatrix.length; i++) { //find connection
-  for(let j = 0; j < newMatrix[i].length; j++) {
-    if(newMatrix[i][j]) {
-      const names = [`vert${i+1}`, `vert${j+1}`];
-      if(!newMatrix[j][i]) newVerts[names[0]].soloDirected.push(`vert${j+1}`);
-    }
-  }
-}
-console.log('Матриця досяжностi: ', matrDos)
-console.log('Матриця сил. зв`язностi: ', S)
-
-term.innerHTML += startText;
-term.innerHTML += 'ways -n 2<br>';
-for(let i = 0; i < ways2.length;) { 
-  let text1 = ways2[i];
-  const text2 = ways2[i + 1] || '';
-  const marg = 12 - text1.length;
-  for(let i = 0; i < marg; i++) {
-    text1 += '&nbsp';
-  }
-  term.innerHTML += `${text1}${text2}<br>`;
-  i+=2;
-}
-
-term.innerHTML += startText;
-term.innerHTML += 'ways -n 3<br>';
-for(let i = 0; i < ways3.length;) { 
-  let text1 = ways3[i];
-  const text2 = ways3[i + 1] || '';
-  const marg = 12 - text1.length;
-  for(let i = 0; i < marg; i++) {
-    text1 += '&nbsp';
-  }
-  term.innerHTML += `${text1}${text2}<br>`;
-  i+=2;
-}
-
-term.innerHTML += startText;
-term.innerHTML += 'stronglyConnectedComponents<br>';
-for(let i = 0; i < V.length; i++) {
-  term.innerHTML += `<span id = 'yellow'>Component ${i + 1}: </span>: `; 
-  term.innerHTML += `{${V[i]}}<br>`;
-}
-
-ctx3.fillStyle = 'white';
 
 const treeObj = {};
 for(let i = 0; i < dfsFull.length - 1; i++) {
@@ -499,6 +341,7 @@ for(let i = 0; i < dfsFull.length - 1; i++) {
   let next = dfsFull[i+1];
   if(treeObj[next] !== curr) {
     treeObj[curr] = next;
+    treeMatrix[curr-1][next-1] = 1;
     ctx3.beginPath();
     ctx3.moveTo(verts[`vert${curr}`].x, verts[`vert${curr}`].y);
     ctx3.lineTo(verts[`vert${next}`].x, verts[`vert${next}`].y);
@@ -509,6 +352,11 @@ for(let i = 0; i < dfsFull.length - 1; i++) {
     ctx3.closePath();
   } 
 }
+
+console.log("Numeration: ", dfsArray)
+console.log("Numeration matrix: ", numMatrix)
+console.log("Tree matrix: ", treeMatrix);
+
 
 let vertNum = 0; 
 
