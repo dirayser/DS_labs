@@ -138,7 +138,8 @@ const dfsArray = [starty];
 const dfsFull = [starty];
 
 const dfs = (vertics, current, prev = 1) => {
-  vertics[`vert${current}`].cons.forEach((val) => {
+  const cons = JSON.parse(JSON.stringify(vertics[`vert${current}`].cons)).sort((a, b) => a - b)
+  cons.forEach((val) => {
     if(!dfsArray.includes(val)){
       dfsArray.push(val);
       dfsFull.push(val);
