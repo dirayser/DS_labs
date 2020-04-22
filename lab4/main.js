@@ -41,7 +41,7 @@ ctx3.width = canv2.width;
 ctx3.height = canv2.height;
 
 
-const radius = 20;
+const radius = 25;
 const selfRadius = radius / 2;
 
 const arrowRadius = 5;
@@ -163,51 +163,58 @@ for(let i = 0; i < N; i++) {
 
 const iter = dfsFull[Symbol.iterator]();
 let prev = 0;
-const visited = [];
+const visited = new Set();
 
 const halt = () => {
   let currVal = iter.next().value;
-  visited.forEach(x => {
-    ctx.beginPath();
-    drawCircle(ctx, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, '#0000FF', 'black');
-    { //text
+  if(visited.size === dfsArray.length) {
+    visited.forEach(x => {
+      ctx.beginPath();
+      drawCircle(ctx, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, 'green', 'black');
       ctx.font = '20px Arial';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.strokeText(`${x}`, verts[`vert${x}`].x, verts[`vert${x}`].y);
-      ctx.fillText(`${x}`, verts[`vert${x}`].x, verts[`vert${x}`].y);
-    }
+      ctx.strokeText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+      ctx.fillText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+    })
+    return;
+  };
+  visited.forEach(x => {
+    ctx.beginPath();
+    drawCircle(ctx, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, 'indigo', 'black');
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.strokeText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+    ctx.fillText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
   })
   const currVert = `vert${currVal}`; 
   const prevVert = `vert${prev}`;
   ctx.beginPath();
-  drawCircle(ctx, verts[currVert].x, verts[currVert].y, radius, 'red', 'black');
-  { //text
+  drawCircle(ctx, verts[currVert].x, verts[currVert].y, radius, 'deeppink', 'black');
   ctx.font = '20px Arial';
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-  ctx.strokeText(`${currVal}`, verts[currVert].x, verts[currVert].y);
-  ctx.fillText(`${currVal}`, verts[currVert].x, verts[currVert].y);
-  }
+  ctx.strokeText(`${currVal}(${dfsArray.indexOf(currVal) + 1})`, verts[currVert].x, verts[currVert].y);
+  ctx.fillText(`${currVal}(${dfsArray.indexOf(currVal) + 1})`, verts[currVert].x, verts[currVert].y);
   if(prev) {
     ctx.beginPath()
-    drawCircle(ctx, verts[prevVert].x, verts[prevVert].y, radius, 'green', 'black')
-
-    { //text
-      ctx.font = '20px Arial';
+    drawCircle(ctx, verts[prevVert].x, verts[prevVert].y, radius, 'darkviolet', 'black')
+    ctx.font = '20px Arial';
     ctx.fillStyle = 'white';
     ctx.strokeStyle = 'black';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    ctx.strokeText(`${prev}`, verts[prevVert].x, verts[prevVert].y);
-    ctx.fillText(`${prev}`, verts[prevVert].x, verts[prevVert].y);
-    }
+    ctx.strokeText(`${prev}(${dfsArray.indexOf(prev) + 1})`, verts[prevVert].x, verts[prevVert].y);
+    ctx.fillText(`${prev}(${dfsArray.indexOf(prev) + 1})`, verts[prevVert].x, verts[prevVert].y);
   }
-  visited.push(currVal);
+  visited.add(currVal);
   prev = currVal;
 }
 
@@ -422,8 +429,8 @@ for(let i = 1; i <= N; i++) { //draw text
   ctx.strokeStyle = 'black';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-  ctx.strokeText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
-  ctx.fillText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
+  ctx.strokeText(`${i}(${dfsArray.indexOf(i) + 1})`, verts[`vert${i}`].x, verts[`vert${i}`].y);
+  ctx.fillText(`${i}(${dfsArray.indexOf(i) + 1})`, verts[`vert${i}`].x, verts[`vert${i}`].y);
 
   ctx2.font = '20px Arial';
   ctx2.fillStyle = 'white';
