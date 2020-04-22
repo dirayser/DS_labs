@@ -385,7 +385,16 @@ for(const key in verts) { //drawSoloArrows
     ctx2.stroke();
   }
 }
-
+for(const key in verts) { //drawBothArrows
+  for(let i = 0; i < verts[key].bothDirected.length; i++) {
+    let from = verts[key];
+    let to = verts[verts[key].bothDirected[i]]
+    ctx2.beginPath();
+    ctx2.moveTo(from.x, from.y);
+    ctx2.lineTo(to.x, to.y);
+    ctx2.stroke();
+  }
+}
 for(const key of selfConnected) { //drawSelfConnected
   const alpha = Math.atan2(verts[key].y - yCenter, verts[key].x - xCenter);
   const R = Math.sqrt((xCenter - verts[key].x)**2 + (yCenter - verts[key].y)**2);
