@@ -75,7 +75,6 @@ const yCenter = bordHeight / 2;
 
 for(const key in verts) {  //adding props
   verts[key].cons = [],
-  verts[key].weights = [],
   verts[key].in = [],
   verts[key].soloDirected = [],
   verts[key].bothDirected = []
@@ -84,6 +83,20 @@ for(const key in verts) {  //adding props
 const N = 11;
 
 const matrix = [
+  [0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0],
+  [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1],
+  [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+  [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+  [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1],
+  [0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0],
+  [1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1],
+  [0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+  [0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1],
+]
+
+const weightsMatrix = [
   [0,  0,  67, 35, 0,  0,  60, 0,  8,  88, 0],
   [0,  0,  0,  6,  0,  0,  92, 0,  0,  13, 50],
   [67, 0,  0,  88, 6,  0,  72, 82, 55, 49, 25],
@@ -105,6 +118,17 @@ const selfConnected = [];
 const outerVerts = [];
 const weightsArr = [];
 
+for(let i = 0; i < weightsMatrix.length; i++) { //add weights
+  for(let j = i; j < weightsMatrix[i].length; j++) {
+    if(weightsMatrix[i][j]) {
+      weightsArr.push({
+        weight: weightsMatrix[i][j],
+        name: [i + 1, j + 1]
+      });
+    }
+  }
+}
+
 for(let i = 0; i < matrixCopy.length; i++) { //find connection
   for(let j = 0; j < matrixCopy[i].length; j++) {
     if(matrixCopy[i][j]) {
@@ -114,11 +138,6 @@ for(let i = 0; i < matrixCopy.length; i++) { //find connection
       else if(i !== j) verts[names[0]].bothDirected.push(`vert${j+1}`);
       else selfConnected.push(`vert${i+1}`);
       verts[names[0]].cons.push(j + 1);
-      verts[names[0]].weights.push(matrixCopy[i][j]);   
-      if(i < j) weightsArr.push({
-        weight: matrixCopy[i][j],
-        name: [i + 1, j + 1]
-      });
       if(!outerVerts.includes(i + 1) && (i !== j)) outerVerts.push(i + 1);
     }
   }
@@ -144,10 +163,6 @@ for(const key in verts) {
   term.innerHTML += `Degree(out) ${verts[key].cons.length}; `;
   term.innerHTML += '<br>';
 }
-
-const starty = 8;
-const dfsArray = [starty];
-const dfsFull = [starty];
 
 const COMP = [];
 let components = [];
@@ -209,95 +224,55 @@ const Krskl = (weights, comp, curr = 0) => {
 
 Krskl(weightsArr, []);
 
-const dfs = (vertics, current, prev = 1) => {
-  const cons = JSON.parse(JSON.stringify(vertics[`vert${current}`].cons));
-  const weights = JSON.parse(JSON.stringify(vertics[`vert${current}`].weights));
-  for (let i = 0; i < weights.length - 1; i++) {
-    for (let j = 0; j < weights.length - 1 - i; j++) {
-      if (weights[j] > weights[j + 1]) {
-          [weights[j], weights[j + 1]] = [weights[j + 1], weights[j]];
-          [cons[j], cons[j + 1]] = [cons[j + 1], cons[j]];
-      }
-   }
-  }
-  cons.forEach((val) => {
-    if(!dfsArray.includes(val)){
-      dfsArray.push(val);
-      dfsFull.push(val);
-      dfs(vertics, val, current);
-    }
-  });
-  dfsFull.push(prev);
-}
-
-dfs(verts, starty);
-
-let numMatrix = [];
-for(let i = 0; i < N; i++) {
-  numMatrix[i] = [];
-  for(let j = 0; j < N; j++) {
-    numMatrix[i][j] = 0;
-  }
-  numMatrix[i][dfsArray[i] - 1] = 1;
-}
-
-
-const iter = dfsFull[Symbol.iterator]();
+const iter = COMP[Symbol.iterator]();
 let prev = 0;
 const visited = new Set();
 
-const halt = () => {
-  let currVal = iter.next().value;
-  if(visited.size === dfsArray.length) {
-    visited.forEach(x => {
-      ctx2.beginPath();
-      drawCircle(ctx2, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, 'green', 'black');
-      ctx2.font = '20px Arial';
-      ctx2.fillStyle = 'white';
-      ctx2.strokeStyle = 'black';
-      ctx2.textBaseline = 'middle';
-      ctx2.textAlign = 'center';
-      ctx2.strokeText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
-      ctx2.fillText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
-    })
-    return;
-  };
+const colors = ['DeepPink', 'Cyan', 'MediumSpringGreen']
 
-  visited.forEach(x => {
-    ctx2.beginPath();
-    drawCircle(ctx2, verts[`vert${x}`].x, verts[`vert${x}`].y, radius, 'indigo', 'black');
-    ctx2.font = '20px Arial';
-    ctx2.fillStyle = 'white';
-    ctx2.strokeStyle = 'black';
-    ctx2.textBaseline = 'middle';
-    ctx2.textAlign = 'center';
-    ctx2.strokeText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
-    ctx2.fillText(`${x}(${dfsArray.indexOf(x) + 1})`, verts[`vert${x}`].x, verts[`vert${x}`].y);
+const halt = () => {
+  let currArr = iter.next().value;
+  currArr.forEach((component, compIndex) => {
+    component.forEach(pair => { //draw colored
+      const from = verts[`vert${pair[0]}`];
+      const to = verts[`vert${pair[1]}`];
+      ctx2.lineWidth = 3;
+      ctx2.strokeStyle = colors[colors.length % (compIndex + 1)];
+      ctx2.beginPath();
+      ctx2.moveTo(from.x, from.y);
+      ctx2.lineTo(to.x, to.y);
+      ctx2.stroke();
+    });
   })
-  const currVert = `vert${currVal}`; 
-  const prevVert = `vert${prev}`;
-  ctx2.beginPath();
-  drawCircle(ctx2, verts[currVert].x, verts[currVert].y, radius, 'deeppink', 'black');
-  ctx2.font = '20px Arial';
-  ctx2.fillStyle = 'white';
-  ctx2.strokeStyle = 'black';
-  ctx2.textBaseline = 'middle';
-  ctx2.textAlign = 'center';
-  ctx2.strokeText(`${currVal}(${dfsArray.indexOf(currVal) + 1})`, verts[currVert].x, verts[currVert].y);
-  ctx2.fillText(`${currVal}(${dfsArray.indexOf(currVal) + 1})`, verts[currVert].x, verts[currVert].y);
-  if(prev) {
+  ctx2.lineWidth = 1;
+  for(let i = 0; i < N; i++) { // draw weights
+    for(let j = i; j < N; j++) {
+      if(weightsMatrix[i][j]) {
+        const wgh = weightsMatrix[i][j];
+        const from = verts[`vert${i+1}`];
+        const to = verts[`vert${j+1}`];
+        ctx2.font = '15px Arial';
+        ctx2.fillStyle = 'white';
+        ctx2.strokeStyle = 'black';
+        ctx2.textBaseline = 'middle';
+        ctx2.textAlign = 'center';
+        ctx2.fillText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
+      }
+  }
+  }
+  for(const key in verts) { //draw vertics
     ctx2.beginPath()
-    drawCircle(ctx2, verts[prevVert].x, verts[prevVert].y, radius, 'darkviolet', 'black')
+    drawCircle(ctx2, verts[key].x, verts[key].y, radius, 'grey', 'black')
+  }
+  for(let i = 1; i <= N; i++) { //draw text
     ctx2.font = '20px Arial';
     ctx2.fillStyle = 'white';
     ctx2.strokeStyle = 'black';
     ctx2.textBaseline = 'middle';
     ctx2.textAlign = 'center';
-    ctx2.strokeText(`${prev}(${dfsArray.indexOf(prev) + 1})`, verts[prevVert].x, verts[prevVert].y);
-    ctx2.fillText(`${prev}(${dfsArray.indexOf(prev) + 1})`, verts[prevVert].x, verts[prevVert].y);
+    ctx2.strokeText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
+    ctx2.fillText(`${i}`, verts[`vert${i}`].x, verts[`vert${i}`].y);
   }
-  visited.add(currVal);
-  prev = currVal;
 }
 
 const defaultColor = '#939393';
@@ -376,6 +351,13 @@ function SumMatrix(A,B)       //На входе двумерные массив�
     return C;
 }
 
+const AB = SumMatrix(fullCopy(matrix), TransMatrix(fullCopy(matrix)));
+AB.forEach((i, in1) => {
+  i.forEach((j, in2) => {
+    if(j) AB[in1][in2]= 1;
+  })
+})
+
 ///// Directed
 for(const key in verts) { //drawSoloArrows
   for(let i = 0; i < verts[key].soloDirected.length; i++) {
@@ -417,33 +399,33 @@ for(const key in verts) { //drawBothArrows
   }
 }
 
-let treeMatrix = [];
+let vertNum = 0; 
+
+////TREE
+const treeMatrix = [];
 for(let i = 0; i < N; i++) {
   treeMatrix[i] = [];
   for(let j = 0; j < N; j++) {
     treeMatrix[i][j] = 0;
   }
 }
-
-const treeObj = {};
-for(let i = 0; i < dfsFull.length - 1; i++) {
-  let curr = dfsFull[i];
-  let next = dfsFull[i+1];
-  if(treeObj[next] !== curr) {
-    treeObj[curr] = next;
-    treeMatrix[curr-1][next-1] = 1;
-    ctx3.beginPath();
-    ctx3.moveTo(verts[`vert${curr}`].x, verts[`vert${curr}`].y);
-    ctx3.lineTo(verts[`vert${next}`].x, verts[`vert${next}`].y);
-    ctx3.stroke();
-    ctx3.beginPath();
-    const endCoords = getEndCoords(verts[`vert${curr}`], verts[`vert${next}`], radius);
-    drawArrowhead(ctx3, verts[`vert${curr}`], endCoords, arrowRadius, 'white', 'black');
-    ctx3.closePath();
-  } 
-}
-
-let vertNum = 0; 
+COMP[COMP.length - 1][0].forEach(pair => {
+  treeMatrix[pair[0] - 1][pair[1] - 1] = matrix[pair[0] - 1][pair[1] - 1];
+  treeMatrix[pair[1] - 1][pair[0] - 1] = matrix[pair[0] - 1][pair[1] - 1];
+  let from = verts[`vert${pair[0]}`];
+  let to = verts[`vert${pair[1]}`];
+  const wgh = weightsMatrix[pair[0] - 1][pair[1] - 1];
+  ctx3.beginPath();
+  ctx3.moveTo(from.x, from.y);
+  ctx3.lineTo(to.x, to.y);
+  ctx3.stroke();
+  ctx3.font = '15px Arial';
+  ctx3.fillStyle = 'white';
+  ctx3.strokeStyle = 'black';
+  ctx3.textBaseline = 'middle';
+  ctx3.textAlign = 'center';
+  ctx3.fillText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
+})
 
 for(const key in verts) { //draw vertics
   ctx3.beginPath()
@@ -451,7 +433,7 @@ for(const key in verts) { //draw vertics
   vertNum++;
 }
 for(let i = 1; i <= N; i++) { //draw text
-  ctx3.font = '15px Arial';
+  ctx3.font = '20px Arial';
   ctx3.fillStyle = 'white';
   ctx3.strokeStyle = 'black';
   ctx3.textBaseline = 'middle';
@@ -480,10 +462,10 @@ for(const key in verts) { //drawBothArrows
     ctx2.stroke();
   }
 }
-for(let i = 0; i < N; i++) {
+for(let i = 0; i < N; i++) { // draw weights
   for(let j = i; j < N; j++) {
-    if(matrix[i][j]) {
-      const wgh = matrix[i][j];
+    if(weightsMatrix[i][j]) {
+      const wgh = weightsMatrix[i][j];
       const from = verts[`vert${i+1}`];
       const to = verts[`vert${j+1}`];
       ctx2.font = '15px Arial';
@@ -491,7 +473,6 @@ for(let i = 0; i < N; i++) {
       ctx2.strokeStyle = 'black';
       ctx2.textBaseline = 'middle';
       ctx2.textAlign = 'center';
-      //ctx2.strokeText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
       ctx2.fillText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
     }
 }
