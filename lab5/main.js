@@ -3,6 +3,8 @@ const term = document.getElementById('term');
 let startText = 'Graph-plotter:~ circle$ ';
 term.innerHTML = startText;
 
+term.innerHTML +=  'directed --info <br>';
+
 const radius = 25;
 const selfRadius = radius / 2;
 
