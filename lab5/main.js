@@ -1,45 +1,7 @@
-const canv = document.getElementById('canvas');
-const ctx = canv.getContext('2d');
-
-const canv2 = document.getElementById('canvas2');
-const ctx2 = canv2.getContext('2d');
-
-const canv3 = document.getElementById('canvas3'); //condensation
-const ctx3 = canv3.getContext('2d');
-
 const term = document.getElementById('term');
 
 let startText = 'Graph-plotter:~ circle$ ';
 term.innerHTML = startText;
-
-term.innerHTML +=  'directed --info <br>';
-
-canv.style.display = 'none';
-canv2.style.display = 'block';
-canv3.style.display = 'none';
-
-canv.style.position = 'absolute';
-canv2.style.position = 'absolute';
-canv3.style.position = 'absolute';
-
-canv.width = windowWidth * kf;
-canv.height = canv.width;
-
-canv2.width = windowWidth * kf;
-canv2.height = canv2.width;
-
-canv3.width = windowWidth * kf;
-canv3.height = canv2.width;
-
-ctx.width = canv.width;
-ctx.height = canv.height;
-
-ctx2.width = canv2.width;
-ctx2.height = canv2.height;
-
-ctx3.width = canv2.width;
-ctx3.height = canv2.height;
-
 
 const radius = 25;
 const selfRadius = radius / 2;
@@ -174,7 +136,7 @@ const returnConcat = (arr1, arr2) =>{
   return copied1.concat(copied2);
 }
 
-const Krskl = (weights, comp, curr = 0) => {
+const Kruskal = (weights, comp, curr = 0) => {
   const v1 = weights[curr].name[0];
   const v2 = weights[curr].name[1];
   const compCopy = fullCopy(comp);
@@ -219,10 +181,10 @@ const Krskl = (weights, comp, curr = 0) => {
   }
   components = fullCopy(compCopy);
   if(curr === weights.length - 1) return;
-  Krskl(weights, compCopy, curr + 1); 
+  Kruskal(weights, compCopy, curr + 1); 
 }
 
-Krskl(weightsArr, []);
+Kruskal(weightsArr, []);
 
 const iter = COMP[Symbol.iterator]();
 let prev = 0;
@@ -237,7 +199,7 @@ const halt = () => {
       const from = verts[`vert${pair[0]}`];
       const to = verts[`vert${pair[1]}`];
       ctx2.lineWidth = 3;
-      ctx2.strokeStyle = colors[colors.length % (compIndex + 1)];
+      ctx2.strokeStyle = ctx.strokeStyle = colors[(compIndex >= colors.length) ? 'orange' : compIndex];
       ctx2.beginPath();
       ctx2.moveTo(from.x, from.y);
       ctx2.lineTo(to.x, to.y);

@@ -1,18 +1,18 @@
 body {
-  background-image: url("bodyBg.jpg");
+  background-image: url("img/bodyBg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   
 }
 
 #border {
-  background-image: url("bg.jpg");
+  background-image: url("img/bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 #rightUp {
-  background-image: url("term.png");
+  background-image: url("img/term.png");
   background-size: 100%;
 }
 
