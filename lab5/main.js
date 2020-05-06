@@ -374,8 +374,8 @@ for(let i = 0; i < N; i++) {
   }
 }
 COMP[COMP.length - 1][0].forEach(pair => {
-  treeMatrix[pair[0] - 1][pair[1] - 1] = matrix[pair[0] - 1][pair[1] - 1];
-  treeMatrix[pair[1] - 1][pair[0] - 1] = matrix[pair[0] - 1][pair[1] - 1];
+  treeMatrix[pair[0] - 1][pair[1] - 1] = 1;
+  treeMatrix[pair[1] - 1][pair[0] - 1] = 1;
   let from = verts[`vert${pair[0]}`];
   let to = verts[`vert${pair[1]}`];
   const wgh = weightsMatrix[pair[0] - 1][pair[1] - 1];
