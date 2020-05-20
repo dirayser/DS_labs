@@ -3,7 +3,6 @@ const term = document.getElementById('term');
 
 let startText = 'Graph-plotter:~ circle$ ';
 term.innerHTML = startText;
-
 term.innerHTML +=  'directed --info <br>';
 
 const radius = 25;
@@ -161,7 +160,6 @@ const Dijkstra = (obj, current = START_VERT) => {
     newWay.unshift(i)
   }
   term.innerHTML += `${min.v} : ${newWay.join('->')} <span id = 'yellow'>weight: ${obj[min.v].dist}</span><br>`
-  console.log(min.v, newWay)
   return {obj, current: min.v}
 }
 let curr = START_VERT;
@@ -170,13 +168,48 @@ const halt = (object, currentV) => {
   if(!IsDijkstraDone(object)){ 
     const {obj, current} = Dijkstra(object, currentV);
     curr = current;
-    for(const v in obj) { //draw vertics
+    ctx2.clearRect(0, 0, ctx2.width, ctx2.height)
+    const newWay = [];
+    for(let i = current; i; i = obj[i].prev){ //find way
+      newWay.unshift(i)
+    } 
+    for(const key in verts) { //drawSoloArrows
+      for(let i = 0; i < verts[key].soloDirected.length; i++) {
+        ctx2.beginPath();
+        ctx2.moveTo(verts[key].x, verts[key].y);
+        ctx2.lineTo(verts[verts[key].soloDirected[i]].x, verts[verts[key].soloDirected[i]].y);
+        ctx2.stroke();
+      }
+    }
+    for(const key in verts) { //drawBothArrows
+      for(let i = 0; i < verts[key].bothDirected.length; i++) {
+        let from = verts[key];
+        let to = verts[verts[key].bothDirected[i]];
+        ctx2.beginPath();
+        ctx2.moveTo(from.x, from.y);
+        ctx2.lineTo(to.x, to.y);
+        ctx2.stroke();
+      }
+    }
+    ctx2.strokeStyle = 'yellow';
+    ctx2.lineWidth = 3;
+    newWay.forEach((v, i, arr) => {
+      if(arr[i + 1]) {
+        ctx2.beginPath();
+        ctx2.moveTo(verts[`vert${v}`].x, verts[`vert${v}`].y);
+        ctx2.lineTo(verts[`vert${arr[i + 1]}`].x, verts[`vert${arr[i + 1]}`].y);
+        ctx2.stroke();
+      }
+    })
+    ctx2.strokeStyle = 'black';
+    for(const v in obj) { 
+      //draw vertics
       ctx2.beginPath()
       ctx2.lineWidth = 5;
       let color = obj[v].mark === 'T' ? 'red' : 'blue';
       if(+v === curr) color = 'yellow';
       drawCircle(ctx2, verts[`vert${v}`].x, verts[`vert${v}`].y, radius, 'gray', color)
-
+      //draw text
       ctx2.lineWidth = 1;
       ctx2.font = '20px Arial';
       ctx2.fillStyle = 'white';
@@ -185,6 +218,21 @@ const halt = (object, currentV) => {
       ctx2.textAlign = 'center';
       ctx2.strokeText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
       ctx2.fillText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
+    }
+    for(let i = 0; i < N; i++) { // draw weights
+      for(let j = i; j < N; j++) {
+        if(weightsMatrix[i][j]) {
+          const wgh = weightsMatrix[i][j];
+          const from = verts[`vert${i+1}`];
+          const to = verts[`vert${j+1}`];
+          ctx2.font = '15px Arial';
+          ctx2.fillStyle = 'white';
+          ctx2.strokeStyle = 'black';
+          ctx2.textBaseline = 'middle';
+          ctx2.textAlign = 'center';
+          ctx2.fillText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
+        }
+    }
     }
   } 
 }
