@@ -185,13 +185,6 @@ Dijkstra(DijkObj);
 
 let curr = START_VERT;
 
-/*const newWay = [];
-  for(let i = min.v; i; i = obj[i].prev){
-    newWay.unshift(i)
-  }
-  term.innerHTML += `${min.v} : ${newWay.join('->')} <span id = 'yellow'>weight: ${obj[min.v].dist}</span><br>`
-*/
-
 const iterDijk = lengthsArray[Symbol.iterator]()
 
 const halt = () => {
@@ -317,6 +310,16 @@ for(const key in verts) {
 }
 
 term.innerHTML += startText + 'ways --info <br>';
+
+for(let v in DijkObj) {
+  const newWay = [];
+  if(v == 1) continue;
+  for(let i = v; i; i = DijkObj[i].prev){
+    newWay.unshift(i)
+  }
+  term.innerHTML += `${v} : ${newWay.join('->')} <span id = 'yellow'>distance: ${DijkObj[v].dist}</span><br>`
+}
+
 
 const COMP = [];
 let components = [];
