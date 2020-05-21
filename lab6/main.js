@@ -151,28 +151,63 @@ const IsDijkstraDone = obj => {
   return done;
 } 
 
+const lengthsArray = [];
+const doneArray = [START_VERT];
+let usingBorders = [];
+
 const Dijkstra = (obj, current = START_VERT) => {
-  GetAdjacentLenghts(obj, current);
+  for(let i = 0; i < N; i++) { //GetAdjacentLenghts(obj, current);
+    const weight = weightsMatrix[current - 1][i];
+    const v = i + 1;
+    if(weight) {
+      if(obj[v].mark === 'T')  {
+        if(weight + obj[current].dist < obj[v].dist) {
+          if(obj[v].prev) {
+           // console.log([current, v])
+            usingBorders = usingBorders.filter(x => JSON.stringify(x) !== JSON.stringify([obj[v].prev, v]))
+          }
+          obj[v].dist = weight + obj[current].dist;
+          obj[v].prev = current;
+          usingBorders.push([current, v])
+        }
+        lengthsArray.push([current, v, fullCopy(doneArray), fullCopy(usingBorders), fullCopy(obj)])
+      } 
+    }
+  }
   const min = GetMinLength(obj);
   obj[min.v].mark = 'P';
-  const newWay = [];
+  doneArray.push(min.v)
+
+  if(!IsDijkstraDone(obj)) Dijkstra(obj, min.v)
+}
+
+Dijkstra(DijkObj);
+
+let curr = START_VERT;
+
+/*const newWay = [];
   for(let i = min.v; i; i = obj[i].prev){
     newWay.unshift(i)
   }
   term.innerHTML += `${min.v} : ${newWay.join('->')} <span id = 'yellow'>weight: ${obj[min.v].dist}</span><br>`
-  return {obj, current: min.v}
-}
-let curr = START_VERT;
+*/
 
-const halt = (object, currentV) => {
-  if(!IsDijkstraDone(object)){ 
-    const {obj, current} = Dijkstra(object, currentV);
-    curr = current;
-    ctx2.clearRect(0, 0, ctx2.width, ctx2.height)
-    const newWay = [];
-    for(let i = current; i; i = obj[i].prev){ //find way
-      newWay.unshift(i)
-    } 
+const iterDijk = lengthsArray[Symbol.iterator]()
+
+const halt = () => {
+  const {value, done} = iterDijk.next();
+  if(!done) {
+    ctx2.clearRect(0, 0, ctx2.width, ctx2.height);
+    const current = value[0],
+    to = value[1],
+    doneArray = value[2],
+    usingArray = value[3],
+    obj = value[4];
+    ctx2.beginPath();
+    console.log(current, to)
+    const keyCurr = 'vert' + current;
+    const keyTo = 'vert' + to;
+    ctx2.strokeStyle = '#273746';
     for(const key in verts) { //drawSoloArrows
       for(let i = 0; i < verts[key].soloDirected.length; i++) {
         ctx2.beginPath();
@@ -191,37 +226,11 @@ const halt = (object, currentV) => {
         ctx2.stroke();
       }
     }
-    ctx2.strokeStyle = 'yellow';
-    ctx2.lineWidth = 3;
-    newWay.forEach((v, i, arr) => {
-      if(arr[i + 1]) {
-        ctx2.beginPath();
-        ctx2.moveTo(verts[`vert${v}`].x, verts[`vert${v}`].y);
-        ctx2.lineTo(verts[`vert${arr[i + 1]}`].x, verts[`vert${arr[i + 1]}`].y);
-        ctx2.stroke();
-      }
-    })
     ctx2.strokeStyle = 'black';
-    for(const v in obj) { 
-      //draw vertics
-      ctx2.beginPath()
-      ctx2.lineWidth = 5;
-      let color = obj[v].mark === 'T' ? 'red' : 'blue';
-      if(+v === curr) color = 'yellow';
-      drawCircle(ctx2, verts[`vert${v}`].x, verts[`vert${v}`].y, radius, 'gray', color)
-      //draw text
-      ctx2.lineWidth = 1;
-      ctx2.font = '20px Arial';
-      ctx2.fillStyle = 'white';
-      ctx2.strokeStyle = 'black';
-      ctx2.textBaseline = 'middle';
-      ctx2.textAlign = 'center';
-      ctx2.strokeText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
-      ctx2.fillText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
-    }
     for(let i = 0; i < N; i++) { // draw weights
       for(let j = i; j < N; j++) {
         if(weightsMatrix[i][j]) {
+          ctx2.beginPath()
           const wgh = weightsMatrix[i][j];
           const from = verts[`vert${i+1}`];
           const to = verts[`vert${j+1}`];
@@ -232,9 +241,58 @@ const halt = (object, currentV) => {
           ctx2.textAlign = 'center';
           ctx2.fillText(wgh, (from.x + to.x)/2, (from.y + to.y)/2);
         }
+      }
     }
+    for(const key of selfConnected) { //drawSelfConnected
+      const alpha = Math.atan2(verts[key].y - yCenter, verts[key].x - xCenter);
+      const R = Math.sqrt((xCenter - verts[key].x)**2 + (yCenter - verts[key].y)**2);
+    
+      const x = xCenter + (R + radius * 1.3) * Math.cos(alpha);
+      const y = yCenter + (R + radius * 1.3) * Math.sin(alpha);
+      ctx2.beginPath();
+      drawCircle(ctx2, x, y, selfRadius, undefined, 'black');
     }
-  } 
+    ctx2.lineWidth = 2;
+    usingArray.forEach((arr) => { //ребра которые используются в мин. путях
+      ctx2.beginPath();
+      const fromV = arr[0],
+      toV = arr[1];
+      ctx2.strokeStyle = '#48C9B0';
+      ctx2.moveTo(verts['vert' + fromV].x, verts['vert' + fromV].y);
+      ctx2.lineTo(verts['vert' + toV].x, verts['vert' + toV].y);
+      ctx2.stroke();
+    })
+    ctx2.lineWidth = 1;
+    { //данная вершина
+      ctx2.beginPath();
+      ctx2.strokeStyle = 'yellow';
+      ctx2.lineWidth = 3;
+      ctx2.moveTo(verts[keyCurr].x, verts[keyCurr].y);
+      ctx2.lineTo(verts[keyTo].x, verts[keyTo].y);
+      ctx2.stroke();
+      ctx2.strokeStyle = 'black';
+      ctx2.lineWidth = 1;
+    }
+    for(let i = 1; i <= N; i++) { //draw vertics
+      ctx2.beginPath();
+      let color = doneArray.includes(i) ? '#3498DB' : '#E74C3C';
+      if(current === i) color = '#48C9B0'
+      drawCircle(ctx2, verts[`vert${i}`].x, verts[`vert${i}`].y, radius, color, 'black')
+    }
+    for(const v in obj) { 
+      //draw vertics
+      ctx2.beginPath()
+      //draw text
+      ctx2.lineWidth = 1;
+      ctx2.font = '20px Arial';
+      ctx2.fillStyle = 'white';
+      ctx2.strokeStyle = 'black';
+      ctx2.textBaseline = 'middle';
+      ctx2.textAlign = 'center';
+      ctx2.strokeText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
+      ctx2.fillText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
+    }
+  }
 }
 
 weightsArr.sort((a, b) => a.weight - b.weight);
@@ -601,4 +659,6 @@ function drawArrowhead(context, from, to, radius, fillStyle = 'white', strokesty
   context.closePath();
   context.fill();
   context.stroke();
+
+
 }
