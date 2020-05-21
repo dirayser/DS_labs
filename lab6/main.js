@@ -286,6 +286,24 @@ const halt = () => {
       ctx2.fillText(`${v}(${obj[v].dist === inf ? '∞' : obj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
     }
   }
+  else {
+    for(let i = 1; i <= N; i++) { //draw vertics
+      ctx2.beginPath();
+      const color = '#3498DB';
+      drawCircle(ctx2, verts[`vert${i}`].x, verts[`vert${i}`].y, radius, color, 'black')
+    }
+    for(const v in DijkObj) { 
+      ctx2.beginPath()
+      ctx2.lineWidth = 1;
+      ctx2.font = '20px Arial';
+      ctx2.fillStyle = 'white';
+      ctx2.strokeStyle = 'black';
+      ctx2.textBaseline = 'middle';
+      ctx2.textAlign = 'center';
+      ctx2.strokeText(`${v}(${DijkObj[v].dist === inf ? '∞' : DijkObj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
+      ctx2.fillText(`${v}(${DijkObj[v].dist === inf ? '∞' : DijkObj[v].dist})`, verts[`vert${v}`].x, verts[`vert${v}`].y);
+      }
+  }
 }
 
 weightsArr.sort((a, b) => a.weight - b.weight);
